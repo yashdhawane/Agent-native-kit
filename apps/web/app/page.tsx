@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { authClient } from "../lib/auth-client";
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
@@ -19,9 +23,97 @@ const ThemeImage = (props: Props) => {
 };
 
 export default function Home() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSignUp = async () => {
+    setMessage("Signing up...");
+
+    const { data, error } = await authClient.signUp.email({
+      name,
+      email,
+      password,
+    });
+
+    if (error) {
+      setMessage(error?.message ?? "Sign up failed");
+      return;
+    }
+
+    console.log("Sign up:", data);
+    setMessage(`Signed up as ${email}`);
+  };
+
+  const handleSignIn = async () => {
+    setMessage("Signing in...");
+
+    const { data, error } = await authClient.signIn.email({
+      email,
+      password,
+    });
+
+    if (error) {
+      setMessage(error?.message ?? "Sign up failed");
+      return;
+    }
+
+    console.log("Sign in:", data);
+    setMessage(`Signed in as ${email}`);
+  };
+
+  const handleMe = async () => {
+    const response = await fetch("/api/me", {
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    console.log("API /api/me:", data);
+
+    if (!response.ok) {
+      setMessage(data.error?.message ?? "Protected API failed");
+      return;
+    }
+
+    setMessage(`Protected API works for ${data.user.email}`);
+  };
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
+        <h1>Auth Test</h1>
+
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
+
+        <button onClick={handleSignUp}>Sign Up</button>
+
+        <button onClick={handleSignIn}>Sign In</button>
+
+        <button onClick={handleMe}>Test Protected API</button>
+
+        <p>{message}</p>
+
         <ThemeImage
           className={styles.logo}
           srcLight="turborepo-dark.svg"
@@ -31,72 +123,11 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.dev/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
         <Button appName="web" className={styles.secondary}>
           Open alert
         </Button>
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.dev?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.dev →
-        </a>
-      </footer>
     </div>
   );
 }
