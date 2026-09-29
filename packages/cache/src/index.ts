@@ -1,0 +1,1 @@
+export { del, exists, get, set } from "./cache.js";

@@ -7,7 +7,22 @@
     "zod": {
       "type": "http",
       "url": "https://mcp.inkeep.com/zod/mcp"
-    }
+    },
+    "upstash-redis": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/redis-mcp"],
+      "env": {
+        "UPSTASH_REDIS_REST_URL": "${env:UPSTASH_REDIS_REST_URL}",
+        "UPSTASH_REDIS_REST_TOKEN": "${env:UPSTASH_REDIS_REST_TOKEN}"
+      }
+    },
+    "agentmemory": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@agentmemory/mcp"]
+}
+
 
 
   }
